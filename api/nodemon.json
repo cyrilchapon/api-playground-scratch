@@ -1,0 +1,9 @@
+{
+  "watch": [
+    "src",
+    ".env"
+  ],
+  "execMap": {
+    "ts": "prisma generate && ts-node -r dotenv/config"
+  }
+}

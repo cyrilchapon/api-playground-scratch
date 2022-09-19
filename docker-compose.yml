@@ -1,0 +1,22 @@
+version: '2'
+services:
+  postgres:
+    image: postgres:11.2-alpine
+    ports:
+      - 5433:5432
+    environment:
+      POSTGRES_USER: root
+      POSTGRES_PASSWORD: root
+    tmpfs:
+      - /var/lib/postgresql/data
+    mem_limit: 500m
+    mem_reservation: 300m
+  adminer:
+    image: adminer
+    ports:
+      - 8080:8080
+    environment:
+      ADMINER_DESIGN: hever
+      ADMINER_DEFAULT_SERVER: postgres
+    mem_limit: 500m
+    mem_reservation: 300m

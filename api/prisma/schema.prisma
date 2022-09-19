@@ -1,0 +1,32 @@
+generator client {
+  provider = "prisma-client-js"
+  previewFeatures = ["interactiveTransactions"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @unique @default(uuid())
+  nickName  String   @map("nick_name")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @default(now()) @map("updated_at") @updatedAt
+  post      Post[]   @relation("posts_creator_id_to_users")
+
+  @@map("users")
+}
+
+model Post {
+  id          String    @id @unique @default(uuid())
+  title       String
+  content     String
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @default(now()) @map("updated_at") @updatedAt
+  publishedAt DateTime? @map("published_at")
+  creator     User      @relation("posts_creator_id_to_users", fields: [creatorId], references: [id])
+  creatorId   String    @map("user_id")
+
+  @@map("posts")
+}
