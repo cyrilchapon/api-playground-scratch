@@ -9,8 +9,8 @@
     "generate": "prisma generate",
     "db:reset": "prisma migrate reset",
     "db:migrate": "prisma migrate deploy",
-    "db:migration:create:up": "prisma migrate dev --create-only --name",
-    "db:migration:create:down": "prisma migrate diff --from-schema-datamodel prisma/schema.prisma --to-schema-datasource prisma/schema.prisma --script > down.sql"
+    "db:migration:up": "prisma migrate dev --create-only --name",
+    "db:migration:down": "prisma migrate diff --from-schema-datamodel prisma/schema.prisma --to-schema-datasource prisma/schema.prisma --script > down.sql"
   },
   "dependencies": {
     "@hapi/boom": "^10.0.0",
