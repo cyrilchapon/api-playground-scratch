@@ -13,8 +13,8 @@ import {
 
 type AsyncRequestHandler<
   P = ParamsDictionary,
-  ResBody = any,
-  ReqBody = any,
+  ResBody = unknown,
+  ReqBody = unknown,
   ReqQuery = Query
 > = (
   req: Request<P, ResBody, ReqBody, ReqQuery>,
@@ -22,13 +22,40 @@ type AsyncRequestHandler<
   next: NextFunction
 ) => Promise<void>
 
-type AsyncErrorRequestHandler<
+type ResDescriptor <ResBody> = {
+  statusCode?: number,
+  contentType?: string,
+  body: ResBody
+}
+
+type AsyncManagedRequestHandler<
   P = ParamsDictionary,
-  ResBody = any,
-  ReqBody = any,
+  ResBody = unknown,
+  ReqBody = unknown,
   ReqQuery = Query
 > = (
-  err: any,
+  req: Request<P, ResBody, ReqBody, ReqQuery>
+) => Promise<ResDescriptor<ResBody>>
+
+type AsyncErrorManagedRequestHandler<
+  P = ParamsDictionary,
+  ResBody = unknown,
+  ReqBody = unknown,
+  ReqQuery = Query,
+  Err = unknown
+> = (
+  err: Err,
+  req: Request<P, ResBody, ReqBody, ReqQuery>
+) => Promise<ResDescriptor<ResBody>>
+
+type AsyncErrorRequestHandler<
+  P = ParamsDictionary,
+  ResBody = unknown,
+  ReqBody = unknown,
+  ReqQuery = Query,
+  Err = unknown
+> = (
+  err: Err,
   req: Request<P, ResBody, ReqBody, ReqQuery>,
   res: Response<ResBody>,
   next: NextFunction
@@ -36,8 +63,8 @@ type AsyncErrorRequestHandler<
 
 const createAsyncHandler = <
   P = ParamsDictionary,
-  ResBody = any,
-  ReqBody = any,
+  ResBody = unknown,
+  ReqBody = unknown,
   ReqQuery = Query
 > (handler: AsyncRequestHandler<P, ResBody, ReqBody, ReqQuery>): RequestHandler<
   P,
@@ -55,19 +82,50 @@ const createAsyncHandler = <
   }
 }
 
+const createAsyncManagedHandler = <
+  P = ParamsDictionary,
+  ResBody = unknown,
+  ReqBody = unknown,
+  ReqQuery = Query
+> (handler: AsyncManagedRequestHandler<P, ResBody, ReqBody, ReqQuery>): RequestHandler<
+  P,
+  ResBody,
+  ReqBody,
+  ReqQuery
+  > => {
+  return (
+    req: Request<P, ResBody, ReqBody, ReqQuery>,
+    res: Response<ResBody>,
+    next: NextFunction
+  ) => {
+    handler(req)
+      .then(({
+        statusCode = 200,
+        contentType = 'application/json',
+        body
+      }) => {
+        res.type(contentType)
+        res.status(statusCode)
+        res.send(body)
+      })
+      .catch(next)
+  }
+}
+
 const createAsyncErrorHandler = <
   P = ParamsDictionary,
-  ResBody = any,
-  ReqBody = any,
-  ReqQuery = Query
-> (handler: AsyncErrorRequestHandler<P, ResBody, ReqBody, ReqQuery>): ErrorRequestHandler<
+  ResBody = unknown,
+  ReqBody = unknown,
+  ReqQuery = Query,
+  Err = unknown
+> (handler: AsyncErrorRequestHandler<P, ResBody, ReqBody, ReqQuery, Err>): ErrorRequestHandler<
   P,
   ResBody,
   ReqBody,
   ReqQuery
   > => {
   return async (
-    err: any,
+    err: Err,
     req: Request<P, ResBody, ReqBody, ReqQuery>,
     res: Response<ResBody>,
     next: NextFunction
@@ -77,5 +135,48 @@ const createAsyncErrorHandler = <
   }
 }
 
-export { createAsyncHandler, createAsyncErrorHandler }
-export type { AsyncRequestHandler, AsyncErrorRequestHandler }
+const createAsyncManagedErrorHandler = <
+  P = ParamsDictionary,
+  ResBody = any,
+  ReqBody = any,
+  ReqQuery = Query,
+  Err = unknown
+> (handler: AsyncErrorManagedRequestHandler<P, ResBody, ReqBody, ReqQuery, Err>): ErrorRequestHandler<
+  P,
+  ResBody,
+  ReqBody,
+  ReqQuery
+  > => {
+  return (
+    err: Err,
+    req: Request<P, ResBody, ReqBody, ReqQuery>,
+    res: Response<ResBody>,
+    next: NextFunction
+  ) => {
+    handler(err, req)
+      .then(({
+        statusCode = 500,
+        contentType = 'application/json',
+        body
+      }) => {
+        res.type(contentType)
+        res.status(statusCode)
+        res.send(body)
+      })
+      .catch(next)
+  }
+}
+
+export {
+  createAsyncHandler,
+  createAsyncErrorHandler,
+  createAsyncManagedHandler,
+  createAsyncManagedErrorHandler
+}
+export type {
+  ResDescriptor,
+  AsyncRequestHandler,
+  AsyncErrorRequestHandler,
+  AsyncManagedRequestHandler,
+  AsyncErrorManagedRequestHandler
+}

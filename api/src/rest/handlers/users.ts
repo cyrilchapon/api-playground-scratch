@@ -1,27 +1,44 @@
 import { User } from '@prisma/client'
 import { z } from 'zod'
 import { prismaClientSingleton } from '../../database'
-import { createVah } from '../../util/validated-handler'
+import { paginationArgs, paginationQuerySchema } from '../../util/pagination'
+import { createVmah } from '../../util/validated-handler'
 
 const prisma = prismaClientSingleton()
 
-export const create = createVah({
+export const create = createVmah({
   body: z.object({
     nickName: z.string()
   }).strict()
-})<User>(async (req, res) => {
+})<User>(async (req) => {
   const createdUser = await prisma.user.create({ data: req.body })
 
-  res.status(201)
-  res.json(createdUser)
+  return {
+    statusCode: 201,
+    body: createdUser
+  }
 })
 
-export const find = createVah({
+export const find = createVmah({
   params: z.object({
     id: z.string().uuid()
   }).strict()
-})<User>(async (req, res) => {
+})<User>(async (req) => {
   const foundUser = await prisma.user.findUniqueOrThrow({ where: { id: req.params.id } })
 
-  res.json(foundUser)
+  return {
+    body: foundUser
+  }
+})
+
+export const list = createVmah({
+  query: paginationQuerySchema()
+})<User[]>(async (req) => {
+  const users = await prisma.user.findMany({
+    ...paginationArgs(req.query)
+  })
+
+  return {
+    body: users
+  }
 })
