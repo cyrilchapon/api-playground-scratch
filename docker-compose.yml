@@ -11,12 +11,12 @@ services:
       - /var/lib/postgresql/data
     mem_limit: 500m
     mem_reservation: 300m
-  adminer:
-    image: adminer
-    ports:
-      - 8080:8080
-    environment:
-      ADMINER_DESIGN: hever
-      ADMINER_DEFAULT_SERVER: postgres
-    mem_limit: 500m
-    mem_reservation: 300m
+  # adminer:
+  #   image: adminer
+  #   ports:
+  #     - 8080:8080
+  #   environment:
+  #     ADMINER_DESIGN: hever
+  #     ADMINER_DEFAULT_SERVER: postgres
+  #   mem_limit: 500m
+  #   mem_reservation: 300m
