@@ -4,6 +4,6 @@
     ".env"
   ],
   "execMap": {
-    "ts": "prisma generate && ts-node -r dotenv/config"
+    "ts": "yarn docgen:source && prisma generate && ts-node -r dotenv/config"
   }
 }

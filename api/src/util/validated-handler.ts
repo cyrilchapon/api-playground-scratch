@@ -17,7 +17,7 @@ const createVh = <
       body?: ZVBody
     }
   ) => <
-    ResBody = any,
+    ResBody = unknown,
     P = z.infer<ZVParams>,
     ReqBody = z.infer<ZVBody>,
     ReqQuery = z.infer<ZVQuery>
@@ -45,7 +45,7 @@ const createVah = <
       body?: ZVBody
     }
   ) => <
-    ResBody = any,
+    ResBody = unknown,
     P = z.infer<ZVParams>,
     ReqBody = z.infer<ZVBody>,
     ReqQuery = z.infer<ZVQuery>
@@ -63,17 +63,20 @@ const createVmah = <
   TVParams = any,
   TVQuery = any,
   TVBody = any,
+  TVResBody = any,
   ZVParams extends ZodType<TVParams> = ZodType<TVParams>,
   ZVQuery extends ZodType<TVQuery> = ZodType<TVQuery>,
-  ZVBody extends ZodType<TVBody> = ZodType<TVBody>
+  ZVBody extends ZodType<TVBody> = ZodType<TVBody>,
+  ZVResBody extends ZodType<TVResBody> = ZodType<TVResBody>
 > (
     schemas: {
       params?: ZVParams,
       query?: ZVQuery,
       body?: ZVBody
+      res?: ZVResBody
     }
   ) => <
-    ResBody = any,
+    ResBody = z.infer<ZVResBody>,
     P = z.infer<ZVParams>,
     ReqBody = z.infer<ZVBody>,
     ReqQuery = z.infer<ZVQuery>

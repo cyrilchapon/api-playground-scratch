@@ -1,16 +1,28 @@
 import { User } from '@prisma/client'
-import { z } from 'zod'
 import { prismaClientSingleton } from '../../database'
+import { userPayloadSchema, userCreationSchema } from '../../schemas/user'
+import { createEndpoint } from '../../util/endpoint'
 import { paginationArgs, paginationQuerySchema } from '../../util/pagination'
-import { createVmah } from '../../util/validated-handler'
 
 const prisma = prismaClientSingleton()
 
-export const create = createVmah({
-  body: z.object({
-    nickName: z.string()
-  }).strict()
-})<User>(async (req) => {
+export const create = createEndpoint({
+  body: userCreationSchema.zod,
+  res: userPayloadSchema.zod
+})({
+  responses: {
+    '201': {
+      description: 'Hey ho',
+      content: {
+        'application/json': {
+          schema: {
+            $ref: `#/components/schemas/${userPayloadOpenApiSchema.$ref}`
+          }
+        }
+      }
+    }
+  }
+})(async (req) => {
   const createdUser = await prisma.user.create({ data: req.body })
 
   return {
@@ -19,11 +31,13 @@ export const create = createVmah({
   }
 })
 
-export const find = createVmah({
-  params: z.object({
-    id: z.string().uuid()
-  }).strict()
-})<User>(async (req) => {
+export const find = createEndpoint({
+  params: userFindUniqueZodSchema
+})<User>({
+  responses: {
+
+  }
+})(async (req) => {
   const foundUser = await prisma.user.findUniqueOrThrow({ where: { id: req.params.id } })
 
   return {
@@ -31,9 +45,13 @@ export const find = createVmah({
   }
 })
 
-export const list = createVmah({
+export const list = createEndpoint({
   query: paginationQuerySchema()
-})<User[]>(async (req) => {
+})<User[]>({
+  responses: {
+
+  }
+})(async (req) => {
   const users = await prisma.user.findMany({
     ...paginationArgs(req.query)
   })

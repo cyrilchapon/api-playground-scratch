@@ -5,8 +5,10 @@ import express from 'express'
 import cors from 'cors'
 
 import { router as restRouter } from './rest/routes'
+import { router as docsRouter } from './doc/routes'
 import * as middlewares from './middlewares'
 import { prismaClientSingleton } from './database'
+import path from 'path'
 
 const prisma = prismaClientSingleton()
 
@@ -22,6 +24,10 @@ app.use(express.urlencoded({ extended: true }))
 
 // Bind router
 app.use(restRouter)
+if (appEnv.NODE_ENV === 'development') {
+  app.use('/doc', docsRouter)
+}
+app.use('/doc', express.static(path.resolve(__dirname, '..', 'static')))
 
 // Default to 404
 app.use(middlewares.notFoundHandler)

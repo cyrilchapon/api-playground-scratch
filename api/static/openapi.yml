@@ -1,0 +1,46 @@
+openapi: 3.0.0
+info:
+  title: Hello World
+  version: 1.0.0
+paths:
+  /users:
+    post:
+      responses:
+        "201":
+          description: Hey ho
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/user"
+    get:
+      responses: {}
+  /users/:id:
+    get:
+      responses: {}
+components:
+  schemas:
+    user-creation:
+      type: object
+      properties:
+        nickName:
+          type: string
+      required:
+        - nickName
+    user:
+      type: object
+      properties:
+        id:
+          type: string
+        nickName:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - nickName
+        - createdAt
+        - updatedAt
